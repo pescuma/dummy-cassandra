@@ -1,6 +1,6 @@
 # dummy-cassandra
 
-A dummy interface for [Cassandra](http://cassandra.apache.org).
+A dummy interface for [Cassandra](http://cassandra.apache.org). It is aimed at a simple API and doesn't intend to be complete.
 
 Built upon the shoulders of [Hector](http://hector-client.github.com/hector).
 
