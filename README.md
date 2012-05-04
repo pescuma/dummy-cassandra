@@ -1,11 +1,10 @@
-dummy-cassandra
-===============
+# dummy-cassandra
 
 A dummy interface for [Cassandra](http://cassandra.apache.org).
 
 Built upon the shoulders of [Hector](http://hector-client.github.com/hector).
 
-# Usage
+## Usage
 
 
 1. Create the cluster
@@ -57,14 +56,14 @@ Built upon the shoulders of [Hector](http://hector-client.github.com/hector).
 		keyspace.getSuperColumnFamily("SuperColumnFamilyName").getRow("row-id").getSuperColumn("super-column-id").delete("column-name");
 
 
-# Dependencies
+## Dependencies
 
 To download dependencies
 
 	ant deps
 
 
-# TODO
+## TODO
 
 - Tests
 - Delete rows / super-columns
