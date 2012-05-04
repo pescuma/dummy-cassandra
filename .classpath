@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
+	<classpathentry kind="lib" path="lib/auto/compile/cassandra-thrift-1.0.6-jar.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/commons-codec-1.2-jar.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/commons-lang-2.4-jar.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/commons-logging-1.1.1-jar.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/commons-pool-1.5.3-jar.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/guava-r09-jar.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/hamcrest-core-1.1-jar.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/hector-core-1.0-4-bundle.jar" sourcepath="lib/auto/compile/hector-core-1.0-4-source.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/httpclient-4.0.1-jar.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/httpcore-4.0.1-jar.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/junit-4.10-jar.jar" sourcepath="lib/auto/compile/junit-4.10-source.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/libthrift-0.6.1-jar.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/servlet-api-2.5-jar.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/slf4j-api-1.6.4-jar.jar" sourcepath="lib/auto/compile/slf4j-api-1.6.4-source.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/speed4j-0.9-jar.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/uuid-3.2.0-jar.jar"/>
+	<classpathentry kind="lib" path="lib/auto/compile/joda-time-2.1-jar.jar" sourcepath="lib/auto/compile/joda-time-2.1-source.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
