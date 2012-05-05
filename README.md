@@ -85,4 +85,4 @@ To download dependencies
 - Delete rows / super-columns
 - Indexes
 - Range queries
-- 
+ 
