@@ -71,6 +71,8 @@ Built upon the shoulders of [Hector](http://hector-client.github.com/hector).
 	keyspace.getSuperColumnFamily("SuperColumnFamilyName").getRow("row-id").getSuperColumnKeys("start", "end");
 	keyspace.getSuperColumnFamily("SuperColumnFamilyName").getRow("row-id").getSuperColumn("super-column-id").getColumnNames("start", "end");
 	```
+	
+	Quering a range of rows won't be implemented because, depending on the partitioner, the range makes no sense and won't work as expected.
 
 1. Delete data
 
