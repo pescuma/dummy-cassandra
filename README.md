@@ -36,7 +36,7 @@ Built upon the shoulders of [Hector](http://hector-client.github.com/hector).
 1. Insert data
 
 	```java
-	keyspace.getColumnFamily("ColumnFamilyName").getRow("row-id").insert("column-name", "column-value");
+	keyspace.getColumnFamily("ColumnFamilyName").getRow("row-id").insertColumn("column-name", "column-value");
 	
 	keyspace.getSuperColumnFamily("SuperColumnFamilyName").getRow("row-id").getSuperColumn("super-column-id").incrementCounter("column-name", 1);
 	```
@@ -62,13 +62,22 @@ Built upon the shoulders of [Hector](http://hector-client.github.com/hector).
 	keyspace.getSuperColumnFamily("SuperColumnFamilyName").getRow("row-id").getSuperColumn("super-column-id").getColumnCount();
 	keyspace.getSuperColumnFamily("SuperColumnFamilyName").getRow("row-id").getSuperColumn("super-column-id").getColumnNames();
 	```
+	
+1. List a range of columns
+
+	```java
+	keyspace.getColumnFamily("ColumnFamilyName").getRow("row-id").getColumnNames("start", "end");
+	
+	keyspace.getSuperColumnFamily("SuperColumnFamilyName").getRow("row-id").getSuperColumnKeys("start", "end");
+	keyspace.getSuperColumnFamily("SuperColumnFamilyName").getRow("row-id").getSuperColumn("super-column-id").getColumnNames("start", "end");
+	```
 
 1. Delete data
 
 	```java
-	keyspace.getColumnFamily("ColumnFamilyName").getRow("row-id").delete("column-name");
+	keyspace.getColumnFamily("ColumnFamilyName").getRow("row-id").deleteColumn("column-name");
 		
-	keyspace.getSuperColumnFamily("SuperColumnFamilyName").getRow("row-id").getSuperColumn("super-column-id").delete("column-name");
+	keyspace.getSuperColumnFamily("SuperColumnFamilyName").getRow("row-id").getSuperColumn("super-column-id").deleteColumn("column-name");
 	```
 
 
