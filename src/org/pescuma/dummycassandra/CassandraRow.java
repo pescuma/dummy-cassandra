@@ -20,14 +20,14 @@ public class CassandraRow {
 		hector.mutator().insertCounter(rowKey, hector.getName(), hector.createCounterColumn(column, toAdd));
 	}
 
-	public void insert(Object column, Object value) {
+	public void insertColumn(Object column, Object value) {
 		if (hector.getValueType() == CassandraType.Counter)
 			throw new IllegalStateException();
 
 		hector.mutator().insert(rowKey, hector.getName(), hector.createColumn(column, value));
 	}
 
-	public void delete(Object column) {
+	public void deleteColumn(Object column) {
 		if (hector.getValueType() == CassandraType.Counter)
 			throw new IllegalStateException();
 
@@ -40,8 +40,18 @@ public class CassandraRow {
 	}
 
 	@SuppressWarnings("rawtypes")
+	public Map getColumns(Object startColumnKey, Object endColumnKey) {
+		return hector.getColumnsSlice(rowKey, startColumnKey, endColumnKey);
+	}
+
+	@SuppressWarnings("rawtypes")
 	public Iterable getColumnNames() {
 		return hector.getColumnKeys(rowKey);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Iterable getColumnNames(Object startColumnKey, Object endColumnKey) {
+		return hector.getColumnKeysSlice(rowKey, startColumnKey, endColumnKey);
 	}
 
 	public Object getColumn(Object columnKey) {

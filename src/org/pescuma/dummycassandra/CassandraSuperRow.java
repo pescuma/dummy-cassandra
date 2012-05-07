@@ -19,6 +19,11 @@ public class CassandraSuperRow {
 		return hector.getSuperColumnKeys(rowKey);
 	}
 
+	@SuppressWarnings("rawtypes")
+	public Iterable getSuperColumnKeys(Object startColumnKey, Object endColumnKey) {
+		return hector.getSuperColumnKeysSlice(rowKey, startColumnKey, endColumnKey);
+	}
+
 	public int getSuperColumnCount() {
 		return hector.countSuperColumns(rowKey);
 	}

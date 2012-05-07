@@ -23,14 +23,14 @@ public class CassandraSuperColumn {
 				hector.createSuperCounterColumn(superColumnKey, column, toAdd));
 	}
 
-	public void insert(Object column, Object value) {
+	public void insertColumn(Object column, Object value) {
 		if (hector.getValueType() == CassandraType.Counter)
 			throw new IllegalStateException();
 
 		hector.mutator().insert(rowKey, hector.getName(), hector.createSuperColumn(superColumnKey, column, value));
 	}
 
-	public void delete(Object column) {
+	public void deleteColumn(Object column) {
 		if (hector.getValueType() == CassandraType.Counter)
 			throw new IllegalStateException();
 
@@ -43,8 +43,18 @@ public class CassandraSuperColumn {
 	}
 
 	@SuppressWarnings("rawtypes")
+	public Map getColumns(Object startColumnKey, Object endColumnKey) {
+		return hector.getSubColumnsSlice(rowKey, superColumnKey, startColumnKey, endColumnKey);
+	}
+
+	@SuppressWarnings("rawtypes")
 	public Iterable getColumnNames() {
 		return hector.getSubColumnKeys(rowKey, superColumnKey);
+	}
+
+	@SuppressWarnings("rawtypes")
+	public Iterable getColumnNames(Object startColumnKey, Object endColumnKey) {
+		return hector.getSubColumnKeysSlice(rowKey, superColumnKey, startColumnKey, endColumnKey);
 	}
 
 	public Object getColumn(Object columnKey) {

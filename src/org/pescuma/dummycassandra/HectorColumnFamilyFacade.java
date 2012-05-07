@@ -72,10 +72,6 @@ class HectorColumnFamilyFacade {
 		this.valueType = valueType;
 	}
 
-	CassandraType getValueType() {
-		return valueType;
-	}
-
 	String getName() {
 		return name;
 	}
@@ -90,6 +86,10 @@ class HectorColumnFamilyFacade {
 
 	CassandraType getSubColumnKeyType() {
 		return subColumnKeyType;
+	}
+
+	CassandraType getValueType() {
+		return valueType;
 	}
 
 	void setReplicateOnWrite(Boolean replicateOnWrite) {
@@ -259,13 +259,17 @@ class HectorColumnFamilyFacade {
 	}
 
 	Iterable getColumnKeys(Object rowKey) {
+		return getColumnKeysSlice(rowKey, null, null);
+	}
+
+	Iterable getColumnKeysSlice(Object rowKey, Object startColumnKey, Object endColumnKey) {
 		List result = new LinkedList();
 		if (valueType == CassandraType.Counter) {
-			for (HCounterColumn col : queryCounterColumns(rowKey))
+			for (HCounterColumn col : queryCounterColumns(rowKey, startColumnKey, endColumnKey))
 				result.add(col.getName());
 
 		} else {
-			for (HColumn col : queryColumns(rowKey))
+			for (HColumn col : queryColumns(rowKey, startColumnKey, endColumnKey))
 				result.add(col.getName());
 		}
 		return result;
@@ -280,23 +284,27 @@ class HectorColumnFamilyFacade {
 	}
 
 	Map getColumns(Object rowKey) {
+		return getColumnsSlice(rowKey, null, null);
+	}
+
+	Map getColumnsSlice(Object rowKey, Object startColumnKey, Object endColumnKey) {
 		Map result = new HashMap();
 		if (valueType == CassandraType.Counter) {
-			for (HCounterColumn col : queryCounterColumns(rowKey))
+			for (HCounterColumn col : queryCounterColumns(rowKey, startColumnKey, endColumnKey))
 				result.put(col.getName(), col.getValue());
 		} else {
-			for (HColumn col : queryColumns(rowKey))
+			for (HColumn col : queryColumns(rowKey, startColumnKey, endColumnKey))
 				result.put(col.getName(), col.getValue());
 		}
 		return result;
 	}
 
-	private List<HColumn> queryColumns(Object rowKey) {
+	private List<HColumn> queryColumns(Object rowKey, Object startColumnKey, Object endColumnKey) {
 		SliceQuery query = HFactory.createSliceQuery(keyspace.keyspace, getKeySerializer(), getColumnSerializer(),
 				getValueSerializer());
 		query.setColumnFamily(name);
 		query.setKey(rowKey);
-		query.setRange(null, null, false, Integer.MAX_VALUE);
+		query.setRange(startColumnKey, endColumnKey, false, Integer.MAX_VALUE);
 
 		QueryResult<ColumnSlice> queryResult = query.execute();
 		if (queryResult == null)
@@ -310,12 +318,12 @@ class HectorColumnFamilyFacade {
 		return columns;
 	}
 
-	private List<HCounterColumn> queryCounterColumns(Object rowKey) {
+	private List<HCounterColumn> queryCounterColumns(Object rowKey, Object startColumnKey, Object endColumnKey) {
 		SliceCounterQuery query = HFactory.createCounterSliceQuery(keyspace.keyspace, getKeySerializer(),
 				getColumnSerializer());
 		query.setColumnFamily(name);
 		query.setKey(rowKey);
-		query.setRange(null, null, false, Integer.MAX_VALUE);
+		query.setRange(startColumnKey, endColumnKey, false, Integer.MAX_VALUE);
 
 		QueryResult<CounterSlice> queryResult = query.execute();
 		if (queryResult == null)
@@ -367,38 +375,50 @@ class HectorColumnFamilyFacade {
 	}
 
 	Iterable getSuperColumnKeys(Object rowKey) {
+		return getSuperColumnKeysSlice(rowKey, null, null);
+	}
+
+	Iterable getSuperColumnKeysSlice(Object rowKey, Object startColumnKey, Object endColumnKey) {
 		List result = new LinkedList();
 		if (valueType == CassandraType.Counter) {
-			for (HCounterSuperColumn col : querySuperCounterColumns(rowKey))
+			for (HCounterSuperColumn col : querySuperCounterColumns(rowKey, startColumnKey, endColumnKey))
 				result.add(col.getName());
 		} else {
-			for (HSuperColumn col : querySuperColumns(rowKey))
+			for (HSuperColumn col : querySuperColumns(rowKey, startColumnKey, endColumnKey))
 				result.add(col.getName());
 		}
 		return result;
 	}
 
 	Iterable getSubColumnKeys(Object rowKey, Object superColumnKey) {
+		return getSubColumnKeysSlice(rowKey, superColumnKey, null, null);
+	}
+
+	Iterable getSubColumnKeysSlice(Object rowKey, Object superColumnKey, Object startColumnKey, Object endColumnKey) {
 		List result = new LinkedList();
 		if (valueType == CassandraType.Counter) {
-			for (HCounterColumn col : querySubCounterColumns(rowKey, superColumnKey, null))
+			for (HCounterColumn col : querySubCounterColumns(rowKey, superColumnKey, null, startColumnKey, endColumnKey))
 				result.add(col.getName());
 
 		} else {
-			for (HColumn col : querySubColumns(rowKey, superColumnKey, null))
+			for (HColumn col : querySubColumns(rowKey, superColumnKey, null, startColumnKey, endColumnKey))
 				result.add(col.getName());
 		}
 		return result;
 	}
 
 	Map getSubColumns(Object rowKey, Object superColumnKey) {
+		return getSubColumnsSlice(rowKey, superColumnKey, null, null);
+	}
+
+	Map getSubColumnsSlice(Object rowKey, Object superColumnKey, Object startColumnKey, Object endColumnKey) {
 		Map result = new HashMap();
 		if (valueType == CassandraType.Counter) {
-			for (HCounterColumn col : querySubCounterColumns(rowKey, superColumnKey, null))
+			for (HCounterColumn col : querySubCounterColumns(rowKey, superColumnKey, null, startColumnKey, endColumnKey))
 				result.put(col.getName(), col.getValue());
 
 		} else {
-			for (HColumn col : querySubColumns(rowKey, superColumnKey, null))
+			for (HColumn col : querySubColumns(rowKey, superColumnKey, null, startColumnKey, endColumnKey))
 				result.put(col.getName(), col.getValue());
 		}
 		return result;
@@ -425,7 +445,7 @@ class HectorColumnFamilyFacade {
 
 	Object getValue(Object rowKey, Object superColumnKey, Object columnKey) {
 		if (valueType == CassandraType.Counter) {
-			List<HCounterColumn> columns = querySubCounterColumns(rowKey, superColumnKey, columnKey);
+			List<HCounterColumn> columns = querySubCounterColumns(rowKey, superColumnKey, columnKey, null, null);
 			if (columns.size() < 1)
 				return null;
 
@@ -436,7 +456,7 @@ class HectorColumnFamilyFacade {
 			return hSubColumn.getValue();
 
 		} else {
-			List<HColumn> columns = querySubColumns(rowKey, superColumnKey, columnKey);
+			List<HColumn> columns = querySubColumns(rowKey, superColumnKey, columnKey, null, null);
 			if (columns.size() < 1)
 				return null;
 
@@ -448,7 +468,11 @@ class HectorColumnFamilyFacade {
 		}
 	}
 
-	private List<HColumn> querySubColumns(Object rowKey, Object superColumnKey, Object columnKey) {
+	/**
+	 * Pass columnKey or (startColumnKey, endColumnKey) or all null
+	 */
+	private List<HColumn> querySubColumns(Object rowKey, Object superColumnKey, Object columnKey,
+			Object startColumnKey, Object endColumnKey) {
 		SubSliceQuery query = HFactory.createSubSliceQuery(keyspace.keyspace, getKeySerializer(),
 				getColumnSerializer(), getSubColumnSerializer(), getValueSerializer());
 		query.setColumnFamily(name);
@@ -458,7 +482,7 @@ class HectorColumnFamilyFacade {
 		if (columnKey != null)
 			query.setColumnNames(columnKey);
 		else
-			query.setRange(null, null, false, Integer.MAX_VALUE);
+			query.setRange(startColumnKey, endColumnKey, false, Integer.MAX_VALUE);
 
 		QueryResult<ColumnSlice> result = query.execute();
 		if (result == null)
@@ -472,7 +496,11 @@ class HectorColumnFamilyFacade {
 		return columns;
 	}
 
-	private List<HCounterColumn> querySubCounterColumns(Object rowKey, Object superColumnKey, Object columnKey) {
+	/**
+	 * Pass columnKey or (startColumnKey, endColumnKey) or all null
+	 */
+	private List<HCounterColumn> querySubCounterColumns(Object rowKey, Object superColumnKey, Object columnKey,
+			Object startColumnKey, Object endColumnKey) {
 		SubSliceCounterQuery query = HFactory.createSubSliceCounterQuery(keyspace.keyspace, getKeySerializer(),
 				getColumnSerializer(), getSubColumnSerializer());
 		query.setColumnFamily(name);
@@ -482,7 +510,7 @@ class HectorColumnFamilyFacade {
 		if (columnKey != null)
 			query.setColumnNames(columnKey);
 		else
-			query.setRange(null, null, false, Integer.MAX_VALUE);
+			query.setRange(startColumnKey, endColumnKey, false, Integer.MAX_VALUE);
 
 		QueryResult<CounterSlice> result = query.execute();
 		if (result == null)
@@ -496,12 +524,12 @@ class HectorColumnFamilyFacade {
 		return columns;
 	}
 
-	private List<HSuperColumn> querySuperColumns(Object rowKey) {
+	private List<HSuperColumn> querySuperColumns(Object rowKey, Object startColumnKey, Object endColumnKey) {
 		SuperSliceQuery query = HFactory.createSuperSliceQuery(keyspace.keyspace, getKeySerializer(),
 				getColumnSerializer(), getSubColumnSerializer(), getValueSerializer());
 		query.setColumnFamily(name);
 		query.setKey(rowKey);
-		query.setRange(null, null, false, Integer.MAX_VALUE);
+		query.setRange(startColumnKey, endColumnKey, false, Integer.MAX_VALUE);
 
 		QueryResult<SuperSlice> queryResult = query.execute();
 		if (queryResult == null)
@@ -515,12 +543,12 @@ class HectorColumnFamilyFacade {
 		return columns;
 	}
 
-	private List<HCounterSuperColumn> querySuperCounterColumns(Object rowKey) {
+	private List<HCounterSuperColumn> querySuperCounterColumns(Object rowKey, Object startColumnKey, Object endColumnKey) {
 		MultigetSuperSliceCounterQuery query = HFactory.createMultigetSuperSliceCounterQuery(keyspace.keyspace,
 				getKeySerializer(), getColumnSerializer(), getSubColumnSerializer());
 		query.setColumnFamily(name);
 		query.setKeys(rowKey);
-		query.setRange(null, null, false, Integer.MAX_VALUE);
+		query.setRange(startColumnKey, endColumnKey, false, Integer.MAX_VALUE);
 
 		QueryResult<CounterSuperRows> queryResult = query.execute();
 		if (queryResult == null)
