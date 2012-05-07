@@ -93,5 +93,4 @@ To download dependencies
 - Tests
 - Delete rows / super-columns
 - Indexes
-- Range queries
  
