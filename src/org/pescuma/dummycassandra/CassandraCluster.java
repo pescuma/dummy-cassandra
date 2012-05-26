@@ -41,8 +41,28 @@ public class CassandraCluster {
 			keyspace.connect(cluster);
 	}
 
+	public void disconnect() {
+		if (!isConnected())
+			throw new IllegalStateException("You have to be connected to be able to disconnect");
+
+		for (CassandraKeyspace keyspace : keyspaces.values())
+			keyspace.shutdown();
+
+		HFactory.shutdownCluster(cluster);
+
+		cluster = null;
+	}
+
+	public boolean isConnected() {
+		return cluster != null;
+	}
+
 	public CassandraKeyspace getKeyspace(String kesypace) {
 		return keyspaces.get(kesypace);
+	}
+
+	public Iterable<CassandraKeyspace> getKeyspaces() {
+		return keyspaces.values();
 	}
 
 }

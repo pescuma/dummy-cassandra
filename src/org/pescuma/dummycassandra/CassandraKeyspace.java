@@ -70,6 +70,10 @@ public class CassandraKeyspace {
 		keyspace = HFactory.createKeyspace(name, cluster);
 	}
 
+	void shutdown() {
+		keyspace = null;
+	}
+
 	private void syncSchema(Cluster cluster) {
 		KeyspaceDefinition def = cluster.describeKeyspace(name);
 
