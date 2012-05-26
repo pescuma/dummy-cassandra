@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import me.prettyprint.hector.api.Cluster;
+import me.prettyprint.hector.api.exceptions.HectorException;
 import me.prettyprint.hector.api.factory.HFactory;
 
 public class CassandraCluster
@@ -39,10 +40,17 @@ public class CassandraCluster
 	
 	public void connect()
 	{
-		cluster = HFactory.getOrCreateCluster(name, host + ":" + port);
-		
-		for (CassandraKeyspace keyspace : keyspaces.values())
-			keyspace.connect(cluster);
+		try
+		{
+			cluster = HFactory.getOrCreateCluster(name, host + ":" + port);
+			
+			for (CassandraKeyspace keyspace : keyspaces.values())
+				keyspace.connect(cluster);
+		}
+		catch (HectorException e)
+		{
+			throw new CassandraException("Error connecting to cassandra", e);
+		}
 	}
 	
 	public void disconnect()
@@ -50,12 +58,21 @@ public class CassandraCluster
 		if (!isConnected())
 			throw new IllegalStateException("You have to be connected to be able to disconnect");
 		
-		for (CassandraKeyspace keyspace : keyspaces.values())
-			keyspace.shutdown();
-		
-		HFactory.shutdownCluster(cluster);
-		
-		cluster = null;
+		try
+		{
+			for (CassandraKeyspace keyspace : keyspaces.values())
+				keyspace.shutdown();
+			
+			HFactory.shutdownCluster(cluster);
+		}
+		catch (HectorException e)
+		{
+			throw new CassandraException("Error shutting down cassandra connection", e);
+		}
+		finally
+		{
+			cluster = null;
+		}
 	}
 	
 	public boolean isConnected()
