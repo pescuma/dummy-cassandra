@@ -13,13 +13,13 @@ public class CassandraClusterTest
 	private CassandraCluster cluster;
 	
 	@Before
-	public void setUp() throws Exception
+	public void setUp()
 	{
 		cluster = new CassandraCluster("test", "localhost");
 	}
 	
 	@After
-	public void tearDown() throws Exception
+	public void tearDown()
 	{
 		if (cluster.isConnected())
 			cluster.disconnect();
@@ -98,7 +98,7 @@ public class CassandraClusterTest
 			keyspace.addColumnFamily("CF", CassandraType.Counter, CassandraType.UTF8, CassandraType.UTF8);
 			fail();
 		}
-		catch (Exception e)
+		catch (IllegalArgumentException e)
 		{
 		}
 		
@@ -107,7 +107,7 @@ public class CassandraClusterTest
 			keyspace.addColumnFamily("CF", CassandraType.UTF8, CassandraType.Counter, CassandraType.UTF8);
 			fail();
 		}
-		catch (Exception e)
+		catch (IllegalArgumentException e)
 		{
 		}
 		

@@ -241,7 +241,7 @@ class HectorColumnFamilyFacade
 					return uuidForDate((Date) obj);
 				if (obj instanceof DateTime)
 					return uuidForDate(((DateTime) obj).toDate());
-				throw new IllegalArgumentException("Invalid object type: " + obj.getClass());
+				throw new IllegalArgumentException("Invalid object type for TimeUUID column: " + obj.getClass());
 				
 			default:
 				return obj;
@@ -276,7 +276,6 @@ class HectorColumnFamilyFacade
 				return new KeyIteratorForSuperColumnCounters(keyspace.keyspace, name, getKeySerializer());
 			else
 				return new KeyIteratorForSuperColumn(keyspace.keyspace, name, getKeySerializer());
-			
 		}
 		else
 		{
@@ -299,7 +298,6 @@ class HectorColumnFamilyFacade
 		{
 			for (HCounterColumn col : queryCounterColumns(rowKey, startColumnKey, endColumnKey))
 				result.add(col.getName());
-			
 		}
 		else
 		{
@@ -656,7 +654,7 @@ class HectorColumnFamilyFacade
 			case Counter:
 				return LongSerializer.get();
 			default:
-				throw new IllegalArgumentException("Invalid type: " + type);
+				throw new CassandraException("Something was not implemented (invalid type: " + type + ")");
 		}
 	}
 	
@@ -680,7 +678,7 @@ class HectorColumnFamilyFacade
 			case Counter:
 				return ComparatorType.COUNTERTYPE.getClassName();
 			default:
-				throw new IllegalArgumentException("Invalid type: " + type);
+				throw new CassandraException("Something was not implemented (invalid type: " + type + ")");
 		}
 	}
 	
@@ -702,7 +700,7 @@ class HectorColumnFamilyFacade
 			case UUID:
 				return ComparatorType.UUIDTYPE;
 			default:
-				throw new IllegalArgumentException("Invalid type: " + type);
+				throw new CassandraException("Something was not implemented (invalid type: " + type + ")");
 		}
 	}
 }

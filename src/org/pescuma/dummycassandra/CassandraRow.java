@@ -17,7 +17,7 @@ public class CassandraRow
 	public void incrementCounter(Object column, long toAdd)
 	{
 		if (hector.getValueType() != CassandraType.Counter)
-			throw new IllegalStateException();
+			throw new IllegalStateException("You can only call incrementCounter on a Counter column");
 		
 		hector.mutator().insertCounter(rowKey, hector.getName(), hector.createCounterColumn(column, toAdd));
 	}
@@ -25,7 +25,7 @@ public class CassandraRow
 	public void insertColumn(Object column, Object value)
 	{
 		if (hector.getValueType() == CassandraType.Counter)
-			throw new IllegalStateException();
+			throw new IllegalStateException("You can't call incrementCounter on a Counter column");
 		
 		hector.mutator().insert(rowKey, hector.getName(), hector.createColumn(column, value));
 	}
@@ -33,7 +33,7 @@ public class CassandraRow
 	public void deleteColumn(Object column)
 	{
 		if (hector.getValueType() == CassandraType.Counter)
-			throw new IllegalStateException();
+			throw new IllegalStateException("You can't delete a Counter column");
 		
 		hector.mutator().delete(rowKey, hector.getName(), column, hector.getColumnSerializer());
 	}
