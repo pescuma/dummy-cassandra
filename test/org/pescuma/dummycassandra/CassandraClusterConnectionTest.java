@@ -8,7 +8,7 @@ import org.junit.Test;
 
 // TODO Start cassandra
 // For now you need to start it manually before the tests
-public class CassandraClusterTest
+public class CassandraClusterConnectionTest
 {
 	private CassandraCluster cluster;
 	
@@ -22,7 +22,12 @@ public class CassandraClusterTest
 	public void tearDown()
 	{
 		if (cluster.isConnected())
+		{
+			if (cluster.getKeyspace("Test") != null)
+				cluster.removeKeyspace("Test");
+			
 			cluster.disconnect();
+		}
 	}
 	
 	@Test
@@ -69,6 +74,19 @@ public class CassandraClusterTest
 		cluster.connect();
 		
 		assertSame(keyspace, cluster.getKeyspace("Test"));
+	}
+	
+	@Test
+	public void testRemoveKeyspace()
+	{
+		cluster.addKeyspace("Test");
+		cluster.connect();
+		
+		assertNotNull(cluster.getKeyspace("Test"));
+		
+		cluster.removeKeyspace("Test");
+		
+		assertNull(cluster.getKeyspace("Test"));
 	}
 	
 	@Test

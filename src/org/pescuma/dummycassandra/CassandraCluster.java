@@ -38,6 +38,29 @@ public class CassandraCluster
 		return keyspace;
 	}
 	
+	public void removeKeyspace(String name)
+	{
+		if (!isConnected())
+			throw new IllegalStateException("You have to be connected to be able to remove a keyspace");
+		
+		CassandraKeyspace keyspace = keyspaces.get(name);
+		if (keyspace == null)
+			throw new IllegalArgumentException("Keyspace not registered: " + name);
+		
+		keyspaces.remove(name);
+		
+		try
+		{
+			keyspace.shutdown();
+			
+			cluster.dropKeyspace(name);
+		}
+		catch (HectorException e)
+		{
+			throw new CassandraException("Error removing keyspace", e);
+		}
+	}
+	
 	public void connect()
 	{
 		try
@@ -80,9 +103,9 @@ public class CassandraCluster
 		return cluster != null;
 	}
 	
-	public CassandraKeyspace getKeyspace(String kesypace)
+	public CassandraKeyspace getKeyspace(String keyspace)
 	{
-		return keyspaces.get(kesypace);
+		return keyspaces.get(keyspace);
 	}
 	
 	public Iterable<CassandraKeyspace> getKeyspaces()

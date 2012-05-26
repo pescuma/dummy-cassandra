@@ -14,6 +14,7 @@ import me.prettyprint.cassandra.serializers.LongSerializer;
 import me.prettyprint.cassandra.serializers.StringSerializer;
 import me.prettyprint.cassandra.serializers.TimeUUIDSerializer;
 import me.prettyprint.cassandra.serializers.UUIDSerializer;
+import me.prettyprint.cassandra.service.ColumnSliceIterator;
 import me.prettyprint.cassandra.service.KeyIterator;
 import me.prettyprint.hector.api.beans.ColumnSlice;
 import me.prettyprint.hector.api.beans.CounterSlice;
@@ -57,6 +58,7 @@ class HectorColumnFamilyFacade
 	private final CassandraType subColumnKeyType;
 	private final CassandraType valueType;
 	private Boolean replicateOnWrite;
+	private int pageSize = 1000;
 	
 	HectorColumnFamilyFacade(CassandraKeyspace keyspace, String name, CassandraType rowKeyType,
 			CassandraType columnKeyType, CassandraType subColumnKeyType, CassandraType valueType)
@@ -337,7 +339,7 @@ class HectorColumnFamilyFacade
 		return result;
 	}
 	
-	private List<HColumn> queryColumns(Object rowKey, Object startColumnKey, Object endColumnKey)
+	private Iterable<HColumn> queryColumns(Object rowKey, Object startColumnKey, Object endColumnKey)
 	{
 		SliceQuery query = HFactory.createSliceQuery(keyspace.keyspace, getKeySerializer(), getColumnSerializer(),
 				getValueSerializer());
@@ -345,19 +347,34 @@ class HectorColumnFamilyFacade
 		query.setKey(rowKey);
 		query.setRange(startColumnKey, endColumnKey, false, Integer.MAX_VALUE);
 		
-		QueryResult<ColumnSlice> queryResult = query.execute();
-		if (queryResult == null)
-			return null;
-		
-		ColumnSlice slice = queryResult.get();
-		if (slice == null)
-			return null;
-		
-		List<HColumn> columns = slice.getColumns();
-		return columns;
+		if (pageSize > 0)
+		{
+			final ColumnSliceIterator iterator = new ColumnSliceIterator(query, startColumnKey, endColumnKey, false,
+					pageSize);
+			return new Iterable<HColumn>() {
+				@Override
+				public Iterator<HColumn> iterator()
+				{
+					return iterator;
+				}
+			};
+		}
+		else
+		{
+			QueryResult<ColumnSlice> queryResult = query.execute();
+			if (queryResult == null)
+				return null;
+			
+			ColumnSlice slice = queryResult.get();
+			if (slice == null)
+				return null;
+			
+			List<HColumn> columns = slice.getColumns();
+			return columns;
+		}
 	}
 	
-	private List<HCounterColumn> queryCounterColumns(Object rowKey, Object startColumnKey, Object endColumnKey)
+	private Iterable<HCounterColumn> queryCounterColumns(Object rowKey, Object startColumnKey, Object endColumnKey)
 	{
 		SliceCounterQuery query = HFactory.createCounterSliceQuery(keyspace.keyspace, getKeySerializer(),
 				getColumnSerializer());
@@ -365,16 +382,31 @@ class HectorColumnFamilyFacade
 		query.setKey(rowKey);
 		query.setRange(startColumnKey, endColumnKey, false, Integer.MAX_VALUE);
 		
-		QueryResult<CounterSlice> queryResult = query.execute();
-		if (queryResult == null)
-			return null;
-		
-		CounterSlice slice = queryResult.get();
-		if (slice == null)
-			return null;
-		
-		List<HCounterColumn> columns = slice.getColumns();
-		return columns;
+		if (pageSize > 0)
+		{
+			final CounterColumnSliceIterator iterator = new CounterColumnSliceIterator(query, startColumnKey,
+					endColumnKey, false, pageSize);
+			return new Iterable<HCounterColumn>() {
+				@Override
+				public Iterator<HCounterColumn> iterator()
+				{
+					return iterator;
+				}
+			};
+		}
+		else
+		{
+			QueryResult<CounterSlice> queryResult = query.execute();
+			if (queryResult == null)
+				return null;
+			
+			CounterSlice slice = queryResult.get();
+			if (slice == null)
+				return null;
+			
+			List<HCounterColumn> columns = slice.getColumns();
+			return columns;
+		}
 	}
 	
 	Object getValue(Object rowKey, Object columnKey)
