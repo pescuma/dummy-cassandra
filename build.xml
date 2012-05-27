@@ -3,18 +3,78 @@
 	<property name="lib.dir" value="lib" />
 	<property name="lib.auto.dir" value="${lib.dir}/auto" />
 	<property name="build.dir" value="build" />
-	<property name="bin.dir" value="bin" />
 	<property name="src.dir" value="src" />
+	<property name="src.tests" value="test" />
+
+	<property name="reports.dir" value="${build.dir}/reports" />
+	<property name="build.temp.dir" value="${build.dir}/temp" />
+	<property name="reports.tests" value="${build.dir}/reports/tests" />
+	<property name="out.main.jar" value="${build.dir}/${ant.project.name}.jar" />
+	<property name="out.test.jar" value="${build.dir}/${ant.project.name}-test.jar" />
+
+	<target name="build" depends="clean-build, compile, run-tests" description="Build and test the library">
+		<antcall target="clean" />
+	</target>
+
+	<target name="test" depends="build">
+	</target>
 
 	<target name="deps" depends="install-ivy" description="Download dependencies needed to build">
 		<property name="ivy.dep.file" value="${lib.dir}/ivy.xml" />
 		<ivy:retrieve sync="true" pattern="${lib.auto.dir}/[conf]/[artifact]-[revision]-[type].[ext]" />
 	</target>
 
+	<target name="compile" description="Compile and create jars with lib and tests" depends="deps">
+		<ivy:cachepath conf="compile" pathid="test.refid" />
+
+		<property name="build.class.dir" value="${build.temp.dir}/classes" />
+
+		<echo>Compiling lib...</echo>
+		<mkdir dir="${build.class.dir}" />
+		<javac srcdir="${src.dir}" destdir="${build.class.dir}" debug="off" source="1.6" includeantruntime="false">
+			<classpath refid="test.refid" />
+			<include name="**/*.java" />
+		</javac>
+		<jar destfile="${out.main.jar}" basedir="${build.class.dir}" />
+		<delete dir="${build.class.dir}" />
+
+		<echo>Compiling tests...</echo>
+		<mkdir dir="${build.class.dir}" />
+		<javac srcdir="${src.tests}" destdir="${build.class.dir}" debug="on" source="1.6" includeantruntime="false">
+			<classpath refid="test.refid" />
+			<classpath location="${out.main.jar}" />
+			<include name="**/*Test.java" />
+		</javac>
+		<jar destfile="${out.test.jar}" basedir="${build.class.dir}" />
+		<delete dir="${build.class.dir}" />
+	</target>
+
+	<target name="run-tests" description="Run junit tests" depends="deps">
+		<ivy:cachepath conf="test" pathid="test.refid" />
+
+		<mkdir dir="${reports.tests}" />
+
+		<junit printsummary="yes" fork="yes" failureproperty="junit.failure">
+			<formatter type="xml" />
+			<classpath refid="test.refid" />
+			<classpath>
+				<pathelement location="${out.main.jar}" />
+				<pathelement location="${out.test.jar}" />
+			</classpath>
+			<batchtest fork="yes" todir="${reports.tests}">
+				<fileset dir="${src.tests}">
+					<include name="**/*Test.java" />
+				</fileset>
+			</batchtest>
+		</junit>
+
+		<fail if="junit.failure" message="Unit test(s) failed.  See reports!" />
+	</target>
+
 	<!-- ========================= IVY ========================= -->
 
 	<property name="ivy.install.version" value="2.0.0" />
-	<property name="ivy.jar.dir" value="${build.dir}/ivy" />
+	<property name="ivy.jar.dir" value="${lib.dir}/ivy" />
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy-${ivy.install.version}.jar" />
 
 	<target name="download-ivy">
@@ -31,22 +91,31 @@
 
 	<!-- ========================= CLEAN ========================= -->
 
-	<target name="dist-clean" depends="clean-cache,clean,clean-ivy" description="Clean all the generated files">
-		<delete includeemptydirs="true" quiet="true">
+	<target name="dist-clean" depends="clean-cache,clean-ivy,clean,clean-build" description="Clean all the generated files">
+		<delete includeemptydirs="true" failonerror="false">
 			<fileset dir="${build.dir}" />
 		</delete>
 	</target>
 
 	<target name="clean" description="Clean the build temporary files">
-		<delete includeemptydirs="true" quiet="true">
-			<fileset dir="${build.dir}" />
-			<fileset dir="${bin.dir}" />
-			<fileset dir="${lib.auto.dir}" />
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${build.temp.dir}" />
+		</delete>
+	</target>
+
+	<target name="clean-build" description="Clean the last build files" depends="clean">
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${reports.dir}" />
+			<fileset file="${out.main.jar}" />
+			<fileset file="${out.test.jar}" />
 		</delete>
 	</target>
 
 	<target name="clean-ivy" description="Clean the ivy installation">
-		<delete dir="${ivy.jar.dir}" />
+		<delete includeemptydirs="true" failonerror="false">
+			<fileset dir="${ivy.jar.dir}" />
+			<fileset dir="${lib.auto.dir}" />
+		</delete>
 	</target>
 
 	<target name="clean-cache" depends="install-ivy" description="Clean the ivy cache">

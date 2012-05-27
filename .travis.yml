@@ -1,0 +1,5 @@
+language: java
+
+before_install:
+  - sudo service cassandra start
+  - sleep 3
