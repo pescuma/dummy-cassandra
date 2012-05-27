@@ -4,6 +4,8 @@ A dummy interface for [Cassandra](http://cassandra.apache.org). It is aimed at a
 
 Built upon the shoulders of [Hector](http://hector-client.github.com/hector).
 
+[![Build Status](https://secure.travis-ci.org/pescuma/dummy-cassandra.png?branch=master)](http://travis-ci.org/pescuma/dummy-cassandra)
+
 ## Usage
 
 
