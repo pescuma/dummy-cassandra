@@ -48,6 +48,16 @@ public class CassandraSuperColumnFamily
 		hector.setReplicateOnWrite(getReplicateOnWrite());
 	}
 	
+	int getPageSize()
+	{
+		return hector.getPageSize();
+	}
+	
+	void setPageSize(int pageSize)
+	{
+		hector.setPageSize(pageSize);
+	}
+	
 	public CassandraSuperRow getRow(Object key)
 	{
 		return new CassandraSuperRow(hector, key);
