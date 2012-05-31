@@ -1,8 +1,12 @@
 package org.pescuma.dummycassandra;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
 
+import me.prettyprint.hector.api.beans.CounterSlice;
 import me.prettyprint.hector.api.beans.HCounterColumn;
+import me.prettyprint.hector.api.query.QueryResult;
 import me.prettyprint.hector.api.query.SliceCounterQuery;
 
 /**
@@ -11,9 +15,8 @@ import me.prettyprint.hector.api.query.SliceCounterQuery;
  * 
  * @author thrykol
  */
-class CounterColumnSliceIterator<K, N, V> implements Iterator<HCounterColumn<N>>
+class SliceCounterIterator<K, N, V> implements Iterator<HCounterColumn<N>>
 {
-	
 	private static final int DEFAULT_COUNT = 100;
 	private SliceCounterQuery<K, N> query;
 	private Iterator<HCounterColumn<N>> iterator;
@@ -22,6 +25,7 @@ class CounterColumnSliceIterator<K, N, V> implements Iterator<HCounterColumn<N>>
 	private boolean reversed;
 	private int count = DEFAULT_COUNT;
 	private int columns = 0;
+	private boolean skipFirst = false;
 	
 	/**
 	 * Constructor
@@ -31,7 +35,7 @@ class CounterColumnSliceIterator<K, N, V> implements Iterator<HCounterColumn<N>>
 	 * @param finish Finish point of the range.
 	 * @param reversed Whether or not the columns should be reversed
 	 */
-	public CounterColumnSliceIterator(SliceCounterQuery<K, N> query, N start, final N finish, boolean reversed)
+	public SliceCounterIterator(SliceCounterQuery<K, N> query, N start, final N finish, boolean reversed)
 	{
 		this(query, start, finish, reversed, DEFAULT_COUNT);
 	}
@@ -45,11 +49,9 @@ class CounterColumnSliceIterator<K, N, V> implements Iterator<HCounterColumn<N>>
 	 * @param reversed Whether or not the columns should be reversed
 	 * @param count the amount of columns to retrieve per batch
 	 */
-	public CounterColumnSliceIterator(SliceCounterQuery<K, N> query, N start, final N finish, boolean reversed,
-			int count)
+	public SliceCounterIterator(SliceCounterQuery<K, N> query, N start, final N finish, boolean reversed, int count)
 	{
 		this(query, start, new CounterColumnSliceFinish<N>() {
-			
 			@Override
 			public N function()
 			{
@@ -67,7 +69,7 @@ class CounterColumnSliceIterator<K, N, V> implements Iterator<HCounterColumn<N>>
 	 *        determined point
 	 * @param reversed Whether or not the columns should be reversed
 	 */
-	public CounterColumnSliceIterator(SliceCounterQuery<K, N> query, N start, CounterColumnSliceFinish<N> finish,
+	public SliceCounterIterator(SliceCounterQuery<K, N> query, N start, CounterColumnSliceFinish<N> finish,
 			boolean reversed)
 	{
 		this(query, start, finish, reversed, DEFAULT_COUNT);
@@ -83,44 +85,86 @@ class CounterColumnSliceIterator<K, N, V> implements Iterator<HCounterColumn<N>>
 	 * @param reversed Whether or not the columns should be reversed
 	 * @param count the amount of columns to retrieve per batch
 	 */
-	public CounterColumnSliceIterator(SliceCounterQuery<K, N> query, N start, CounterColumnSliceFinish<N> finish,
+	public SliceCounterIterator(SliceCounterQuery<K, N> query, N start, CounterColumnSliceFinish<N> finish,
 			boolean reversed, int count)
 	{
+		if (count < 2)
+			throw new IllegalArgumentException("At least 2 elements must be fetched each time");
+		
 		this.query = query;
 		this.start = start;
 		this.finish = finish;
 		this.reversed = reversed;
 		this.count = count;
-		this.query.setRange(this.start, this.finish.function(), this.reversed, this.count);
 	}
 	
 	@Override
 	public boolean hasNext()
 	{
-		if (iterator == null)
+		// only need to do another query if maximum columns were retrieved (or if it is the first one)
+		if (iterator == null || (!iterator.hasNext() && columns == count))
 		{
-			iterator = query.execute().get().getColumns().iterator();
-		}
-		else if (!iterator.hasNext() && columns == count)
-		{ // only need to do another query if maximum columns were retrieved
-			query.setRange(start, finish.function(), reversed, count);
-			iterator = query.execute().get().getColumns().iterator();
 			columns = 0;
-			
-			// First element is start which was the last element on the previous query result - skip it
-			if (iterator.hasNext())
-			{
-				next();
-			}
+			skipFirst = (iterator != null);
+			iterator = doQuery();
 		}
 		
 		return iterator.hasNext();
+	}
+	
+	private Iterator<HCounterColumn<N>> doQuery()
+	{
+		query.setRange(start, finish.function(), reversed, count);
+		
+		QueryResult<CounterSlice<N>> queryResult = query.execute();
+		if (queryResult == null)
+			return emptyIterator();
+		
+		CounterSlice<N> slice = queryResult.get();
+		if (slice == null)
+			return emptyIterator();
+		
+		List<HCounterColumn<N>> columns = slice.getColumns();
+		return columns.iterator();
+	}
+	
+	private Iterator<HCounterColumn<N>> emptyIterator()
+	{
+		return new Iterator<HCounterColumn<N>>() {
+			@Override
+			public boolean hasNext()
+			{
+				return false;
+			}
+			
+			@Override
+			public HCounterColumn<N> next()
+			{
+				throw new NoSuchElementException();
+			}
+			
+			@Override
+			public void remove()
+			{
+				throw new IllegalStateException();
+			}
+		};
 	}
 	
 	@Override
 	public HCounterColumn<N> next()
 	{
 		HCounterColumn<N> column = iterator.next();
+		
+		// First element is start which was the last element on the previous query result - skip it
+		if (skipFirst)
+		{
+			if (start != null && start.equals(column.getName()))
+				column = iterator.next();
+			
+			skipFirst = false;
+		}
+		
 		start = column.getName();
 		columns++;
 		

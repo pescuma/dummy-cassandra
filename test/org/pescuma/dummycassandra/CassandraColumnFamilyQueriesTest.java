@@ -95,6 +95,22 @@ public class CassandraColumnFamilyQueriesTest
 		assertEquals(0, names.size());
 	}
 	
+	@Test
+	public void testGetAndDeleteColumnsWi()
+	{
+		cf.setPageSize(10);
+		
+		CassandraRow row = cf.getRow("A");
+		
+		for (int i = 0; i < 100; i++)
+			row.insertColumn(String.format("a%03d", i), "");
+		
+		for (Object col : row.getColumnNames())
+			row.deleteColumn(col);
+		
+		assertEquals(0, toList(row.getColumnNames()).size());
+	}
+	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private <T> List<T> toList(Iterable objs)
 	{
