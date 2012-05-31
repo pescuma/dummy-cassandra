@@ -32,9 +32,6 @@ public class CassandraRow
 	
 	public void deleteColumn(Object column)
 	{
-		if (hector.getValueType() == CassandraType.Counter)
-			throw new IllegalStateException("You can't delete a Counter column");
-		
 		hector.mutator().delete(rowKey, hector.getName(), column, hector.getColumnSerializer());
 	}
 	

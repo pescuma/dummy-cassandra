@@ -565,7 +565,7 @@ class HectorColumnFamilyFacade
 			if (slice == null)
 				return null;
 			
-			HCounterColumn hSubColumn = getSingleElement(slice.getColumns());
+			HCounterColumn hSubColumn = (HCounterColumn) getSingleElement(slice.getColumns());
 			if (hSubColumn == null)
 				return null;
 			
@@ -588,7 +588,7 @@ class HectorColumnFamilyFacade
 			if (slice == null)
 				return null;
 			
-			HColumn hSubColumn = getSingleElement(slice.getColumns());
+			HColumn hSubColumn = (HColumn) getSingleElement(slice.getColumns());
 			if (hSubColumn == null)
 				return null;
 			
@@ -596,14 +596,14 @@ class HectorColumnFamilyFacade
 		}
 	}
 	
-	private <T> T getSingleElement(Iterable<T> iterable)
+	private Object getSingleElement(Iterable iterable)
 	{
-		Iterator<T> it = iterable.iterator();
+		Iterator it = iterable.iterator();
 		
 		if (!it.hasNext())
 			return null;
 		
-		T result = it.next();
+		Object result = it.next();
 		
 		if (it.hasNext())
 			throw new CassandraException("Should be only one element");
