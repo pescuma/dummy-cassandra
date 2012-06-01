@@ -136,7 +136,7 @@ class HectorColumnFamilyFacade
 		if (keyValidationClass != null)
 			def.setKeyValidationClass(keyValidationClass);
 		
-		ComparatorType comparatorType = getComparatorType();
+		ComparatorType comparatorType = getColumnComparatorType();
 		if (comparatorType != null)
 			def.setComparatorType(comparatorType);
 		
@@ -165,7 +165,7 @@ class HectorColumnFamilyFacade
 		return getValidationClass(rowKeyType);
 	}
 	
-	ComparatorType getComparatorType()
+	ComparatorType getColumnComparatorType()
 	{
 		return getComparatorType(columnKeyType);
 	}
