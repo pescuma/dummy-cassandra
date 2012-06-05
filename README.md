@@ -104,4 +104,8 @@ To download dependencies
 - Tests
 - Delete rows / super-columns
 - Indexes
- 
+
+
+## License
+
+MIT. Check ```LICENSE``` file.
