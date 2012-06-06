@@ -13,7 +13,13 @@ import me.prettyprint.cassandra.serializers.LongSerializer;
 import me.prettyprint.cassandra.serializers.StringSerializer;
 import me.prettyprint.cassandra.serializers.TimeUUIDSerializer;
 import me.prettyprint.cassandra.serializers.UUIDSerializer;
+import me.prettyprint.cassandra.service.ColumnSliceIterator;
 import me.prettyprint.cassandra.service.KeyIterator;
+import me.prettyprint.cassandra.service.MultigetSuperSliceCounterIterator;
+import me.prettyprint.cassandra.service.SliceCounterIterator;
+import me.prettyprint.cassandra.service.SubSliceCounterIterator;
+import me.prettyprint.cassandra.service.SubSliceIterator;
+import me.prettyprint.cassandra.service.SuperSliceIterator;
 import me.prettyprint.hector.api.beans.ColumnSlice;
 import me.prettyprint.hector.api.beans.CounterSlice;
 import me.prettyprint.hector.api.beans.HColumn;
@@ -378,7 +384,7 @@ class HectorColumnFamilyFacade
 				query.setColumnFamily(name);
 				query.setKey(rowKey);
 				
-				return new SliceIterator(query, startColumnKey, endColumnKey, false, pageSize);
+				return new ColumnSliceIterator(query, startColumnKey, endColumnKey, false, pageSize);
 			}
 		};
 	}
