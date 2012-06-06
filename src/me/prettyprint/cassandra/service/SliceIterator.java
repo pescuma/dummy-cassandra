@@ -14,7 +14,7 @@ import me.prettyprint.hector.api.query.SliceQuery;
  *
  * @author thrykol
  */
-public class ColumnSliceIterator<K, N, V> implements Iterator<HColumn<N, V>> {
+public class SliceIterator<K, N, V> implements Iterator<HColumn<N, V>> {
 
 	private static final int DEFAULT_COUNT = 100;
 	private SliceQuery<K, N, V> query;
@@ -33,7 +33,7 @@ public class ColumnSliceIterator<K, N, V> implements Iterator<HColumn<N, V>> {
 	 * @param finish Finish point of the range.
 	 * @param reversed Whether or not the columns should be reversed
 	 */
-	public ColumnSliceIterator(SliceQuery<K, N, V> query, N start, final N finish, boolean reversed) {
+	public SliceIterator(SliceQuery<K, N, V> query, N start, final N finish, boolean reversed) {
 		this(query, start, finish, reversed, DEFAULT_COUNT);
 	}
 
@@ -46,7 +46,7 @@ public class ColumnSliceIterator<K, N, V> implements Iterator<HColumn<N, V>> {
 	 * @param reversed Whether or not the columns should be reversed
 	 * @param count the amount of columns to retrieve per batch
 	 */
-	public ColumnSliceIterator(SliceQuery<K, N, V> query, N start, final N finish, boolean reversed, int count) {
+	public SliceIterator(SliceQuery<K, N, V> query, N start, final N finish, boolean reversed, int count) {
 		this(query, start, new ColumnSliceFinish<N>() {
 
 			@Override
@@ -65,7 +65,7 @@ public class ColumnSliceIterator<K, N, V> implements Iterator<HColumn<N, V>> {
 	 * determined point
 	 * @param reversed Whether or not the columns should be reversed
 	 */
-	public ColumnSliceIterator(SliceQuery<K, N, V> query, N start, ColumnSliceFinish<N> finish, boolean reversed) {
+	public SliceIterator(SliceQuery<K, N, V> query, N start, ColumnSliceFinish<N> finish, boolean reversed) {
 		this(query, start, finish, reversed, DEFAULT_COUNT);
 	}
 
@@ -79,7 +79,7 @@ public class ColumnSliceIterator<K, N, V> implements Iterator<HColumn<N, V>> {
 	 * @param reversed Whether or not the columns should be reversed
 	 * @param count the amount of columns to retrieve per batch
 	 */
-	public ColumnSliceIterator(SliceQuery<K, N, V> query, N start, ColumnSliceFinish<N> finish, boolean reversed, int count) {
+	public SliceIterator(SliceQuery<K, N, V> query, N start, ColumnSliceFinish<N> finish, boolean reversed, int count) {
 		this.query = query;
 		this.start = start;
 		this.finish = finish;
