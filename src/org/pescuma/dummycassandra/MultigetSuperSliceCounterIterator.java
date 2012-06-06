@@ -105,7 +105,8 @@ class MultigetSuperSliceCounterIterator<K, SN, N> implements Iterator<HCounterSu
 	@Override
 	public boolean hasNext()
 	{
-		// only need to do another query if maximum columns were retrieved (or if it is the first one)
+		// only need to do another query if maximum columns were retrieved (or
+		// if it is the first one)
 		if (iterator == null || (!iterator.hasNext() && columns == count))
 		{
 			columns = 0;
@@ -168,7 +169,8 @@ class MultigetSuperSliceCounterIterator<K, SN, N> implements Iterator<HCounterSu
 	{
 		HCounterSuperColumn<SN, N> column = iterator.next();
 		
-		// First element is start which was the last element on the previous query result - skip it
+		// First element is start which was the last element on the previous
+		// query result - skip it
 		if (skipFirst)
 		{
 			if (start != null && start.equals(column.getName()))

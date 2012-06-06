@@ -28,8 +28,8 @@ class KeyIteratorForCounters<K> implements Iterable<K>
 	
 	private static int MAX_ROW_COUNT_DEFAULT = 500;
 	private int maxColumnCount = 1; // we only need this to tell if there are
-									// any columns in the row (to test for
-									// tombstones)
+	// any columns in the row (to test for
+	// tombstones)
 	
 	private Iterator<CounterRow<K, String>> rowsIterator = null;
 	
@@ -133,7 +133,7 @@ class KeyIteratorForCounters<K> implements Iterable<K>
 		if (!rowsIterator.hasNext())
 		{
 			nextValue = null; // all done. our iterator's hasNext() will now
-								// return false;
+			// return false;
 		}
 		else
 		{

@@ -118,7 +118,8 @@ class HectorColumnFamilyFacade
 	 */
 	void setPageSize(int pageSize)
 	{
-		// We can't fetch only one element, because we need to fetch the last previous
+		// We can't fetch only one element, because we need to fetch the last
+		// previous
 		if (pageSize == 1)
 			pageSize = 2;
 		
@@ -311,7 +312,8 @@ class HectorColumnFamilyFacade
 	{
 		if (valueType == CassandraType.Counter)
 		{
-			return new TransformIterable<HCounterColumn, Object>( //
+			return new TransformIterable<HCounterColumn, Object>(
+			//
 					queryCounterColumns(rowKey, startColumnKey, endColumnKey), //
 					new TransformIterable.Transformation<HCounterColumn, Object>() {
 						@Override
@@ -447,7 +449,8 @@ class HectorColumnFamilyFacade
 	{
 		if (valueType == CassandraType.Counter)
 		{
-			return new TransformIterable<HCounterSuperColumn, Object>( //
+			return new TransformIterable<HCounterSuperColumn, Object>(
+			//
 					querySuperCounterColumns(rowKey, startColumnKey, endColumnKey), //
 					new TransformIterable.Transformation<HCounterSuperColumn, Object>() {
 						@Override
@@ -459,7 +462,8 @@ class HectorColumnFamilyFacade
 		}
 		else
 		{
-			return new TransformIterable<HSuperColumn, Object>( //
+			return new TransformIterable<HSuperColumn, Object>(
+			//
 					querySuperColumns(rowKey, startColumnKey, endColumnKey), //
 					new TransformIterable.Transformation<HSuperColumn, Object>() {
 						@Override
@@ -480,7 +484,8 @@ class HectorColumnFamilyFacade
 	{
 		if (valueType == CassandraType.Counter)
 		{
-			return new TransformIterable<HCounterColumn, Object>( //
+			return new TransformIterable<HCounterColumn, Object>(
+			//
 					querySubCounterColumns(rowKey, superColumnKey, startColumnKey, endColumnKey), //
 					new TransformIterable.Transformation<HCounterColumn, Object>() {
 						@Override

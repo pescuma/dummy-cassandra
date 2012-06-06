@@ -63,7 +63,8 @@ public class CassandraColumnFamily
 		return hector.getRowKeys();
 	}
 	
-	// It don't allow to query for a slice because, depending on the partitioner, the slice makes no sense.
+	// It don't allow to query for a slice because, depending on the
+	// partitioner, the slice makes no sense.
 	// So I won't implement the slice option here.
 	
 	ColumnFamilyDefinition createColumnFamilyDefinition()

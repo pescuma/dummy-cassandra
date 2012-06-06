@@ -128,7 +128,7 @@ class KeyIteratorForSuperColumn<K> implements Iterable<K>
 		if (!rowsIterator.hasNext())
 		{
 			nextValue = null; // all done. our iterator's hasNext() will now
-								// return false;
+			// return false;
 		}
 		else
 		{
