@@ -15,6 +15,9 @@ import me.prettyprint.cassandra.serializers.TimeUUIDSerializer;
 import me.prettyprint.cassandra.serializers.UUIDSerializer;
 import me.prettyprint.cassandra.service.ColumnSliceIterator;
 import me.prettyprint.cassandra.service.KeyIterator;
+import me.prettyprint.cassandra.service.KeyIteratorForCounterColumn;
+import me.prettyprint.cassandra.service.KeyIteratorForSuperColumn;
+import me.prettyprint.cassandra.service.KeyIteratorForSuperCounterColumn;
 import me.prettyprint.cassandra.service.MultigetSuperSliceCounterIterator;
 import me.prettyprint.cassandra.service.SliceCounterIterator;
 import me.prettyprint.cassandra.service.SubSliceCounterIterator;
@@ -296,14 +299,14 @@ class HectorColumnFamilyFacade
 		if (subColumnKeyType != null)
 		{
 			if (valueType == CassandraType.Counter)
-				return new KeyIteratorForSuperColumnCounters(keyspace.keyspace, name, getKeySerializer());
+				return new KeyIteratorForSuperCounterColumn(keyspace.keyspace, name, getKeySerializer());
 			else
 				return new KeyIteratorForSuperColumn(keyspace.keyspace, name, getKeySerializer());
 		}
 		else
 		{
 			if (valueType == CassandraType.Counter)
-				return new KeyIteratorForCounters(keyspace.keyspace, name, getKeySerializer());
+				return new KeyIteratorForCounterColumn(keyspace.keyspace, name, getKeySerializer());
 			else
 				return new KeyIterator(keyspace.keyspace, name, getKeySerializer());
 		}
