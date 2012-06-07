@@ -3,3 +3,8 @@ language: java
 before_install:
   - sudo service cassandra start
   - sleep 3
+
+jdk:
+  - openjdk7
+  - openjdk6
+  - oraclejdk7
